@@ -29,11 +29,20 @@ s3 <- arrow::s3_bucket(bucket = glue::glue("bio230121-bucket01/vera4cast/forecas
                        anonymous = TRUE)
 avail_dates <- gsub("reference_date=", "", s3$ls())
 
-
 if(reference_date %in% lubridate::as_date(avail_dates)) {
   inflow_ready <- TRUE
 }else{
-  inflow_ready <- FALSE
+  # fall back to the non-archive bucket if the date isn't in the archive yet
+  s3_alt <- arrow::s3_bucket(bucket = glue::glue("bio230121-bucket01/vera4cast/forecasts/parquet/project_id=vera4cast/duration=P1D/variable=Temp_C_mean/model_id=inflow_gefsClimAED"),
+                             endpoint_override = "https://amnh1.osn.mghpcc.org",
+                             anonymous = TRUE)
+  avail_dates_alt <- gsub("reference_date=", "", s3_alt$ls())
+
+  if(reference_date %in% lubridate::as_date(avail_dates_alt)) {
+    inflow_ready <- TRUE
+  }else{
+    inflow_ready <- FALSE
+  }
 }
 
 message(paste0("noaa ready: ", noaa_ready))
