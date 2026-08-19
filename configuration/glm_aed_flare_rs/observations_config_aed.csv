@@ -1,0 +1,7 @@
+state_names_obs,obs_units,obs_sd,target_variable, multi_depth
+temp,degC,1,Temp_C_mean,1
+OXY_oxy,mmol m-3,15,DO_mgL_mean,1
+OGM_doc_total,mmol m-3,18.7,fDOM_QSU_mean,1
+PHY_TCHLA,ugL,2,Chla_ugL_mean,1
+secchi, unitless,0.25, Secchi_m_sample,0
+

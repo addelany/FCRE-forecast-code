@@ -1,0 +1,94 @@
+s3:
+  drivers:
+    endpoint: amnh1.osn.mghpcc.org
+    bucket: bio230121-bucket01/flare/drivers/met
+  inflow_drivers:
+    endpoint: amnh1.osn.mghpcc.org
+    bucket: bio230121-bucket01/flare/drivers/inflow/fcre/lm_ar
+  targets:
+    endpoint: amnh1.osn.mghpcc.org
+    bucket: bio230121-bucket01/flare/targets
+  forecasts:
+    endpoint: amnh1.osn.mghpcc.org
+    bucket: bio230121-bucket01/flare/forecasts/netcdf
+  forecasts_parquet:
+    endpoint: amnh1.osn.mghpcc.org
+    bucket: bio230121-bucket01/flare/forecasts/parquet
+  restart:
+    endpoint: amnh1.osn.mghpcc.org
+    bucket: bio230121-bucket01/flare/restart
+  scores:
+    endpoint: amnh1.osn.mghpcc.org
+    bucket: bio230121-bucket01/flare/scores/parquet
+location:
+   site_id: fcre
+   name: Falling Creek Reservoir
+   latitude: 37.307   #Degrees North
+   longitude: -79.837  #Degrees East
+da_setup:
+    da_method: enkf
+    par_fit_method: perturb
+    ensemble_size:  221
+    localization_distance: .na #distance in meters were covariances in the model error are used
+    no_negative_states: TRUE
+    assimilate_first_step: FALSE
+    use_obs_constraint: TRUE
+    obs_filename: fcre-targets-rs.csv
+model_settings:
+   ncore: 4
+   model_name: glm_aed
+   base_GLM_nml: glm3.nml
+   base_AED_nml: aed2.nml
+   base_AED_phyto_pars_nml: aed_phyto_pars.csv
+   base_AED_zoop_pars_nml: aed2_zoop_pars.nml
+   max_model_layers: 100
+   modeled_depths: [0.00,1.00,1.60,2.00,3.00,4.00,5.00,6.00,7.00,8.00,9.00]
+   par_config_file: parameter_calibration_config_aed.csv
+   obs_config_file: observations_config_aed.csv
+   states_config_file: states_config_aed.csv
+   depth_model_sd_config_file: depth_model_sd_aed.csv
+default_init:
+   lake_depth: 9.4  #not a modeled state
+   temp: [25.667, 24.9101, 23.067, 21.8815, 19.6658, 16.5739, 12.9292, 12.8456, 12.8127, 12.8079, 12.778]
+   temp_depths: [0.127, 1.004, 2.005, 3.021, 4.002, 5.004, 6.004, 7.01, 8.001, 9.015, 9.518]
+   salinity: 0.0
+   snow_thickness: 0.0
+   white_ice_thickness: 0.0
+   blue_ice_thickness: 0.0
+flows:
+   include_inflow: TRUE
+   include_outflow: TRUE
+   historical_inflow_model: historical/model_id=historical_interp_inflow/site_id={site_id}
+   future_inflow_model: future/model_id=inflow-aed/reference_date={reference_date}/site_id={site_id}
+   historical_outflow_model: historical/model_id=historical_interp_outflow/site_id={site_id}
+   future_outflow_model: future/model_id=outflow-aed/reference_date={reference_date}/site_id={site_id}
+   local_inflow_directory: drivers/inflow
+   local_outflow_directory: drivers/inflow
+   use_flows_s3: no
+   use_ler_vars: no
+met:
+   future_met_model: 'gefs-v12/stage2/reference_datetime={reference_date}/site_id={site_id}'
+   historical_met_model: 'gefs-v12/stage3/site_id={site_id}'
+   historical_met_use_s3: TRUE
+   future_met_use_s3: TRUE
+   use_openmeteo: FALSE
+   local_met_directory: 'drivers'
+   use_forecasted_met: TRUE
+   use_ler_vars: FALSE
+   forecast_lag_days: 1
+uncertainty:
+   observation: TRUE
+   process: TRUE
+   weather: TRUE
+   initial_condition: TRUE
+   parameter: TRUE
+   inflow: TRUE
+output_settings:
+   diagnostics_names:  [extc]
+   generate_plots: FALSE
+   evaluate_past: FALSE
+   diagnostics_daily:
+     names: ['CAR_ch4_atm','CAR_atm_co2_flux', 'temp', 'OXY_oxy', 'temp', 'temp']
+     save_names: ['ch4_flux_mean', 'co2_flux_mean', 'temp_1.6m_mean', 'oxy_mean', 'temp_1.0m_mean', 'temp_8.0m_mean']
+     file: ['output.nc','output.nc', 'output.nc', 'output.nc', 'output.nc', 'output.nc']
+     depth: [.na, .na, 1.6, 1.6, 1.0, 8.0]
